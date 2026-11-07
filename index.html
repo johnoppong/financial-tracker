@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Financial Tracker & Order Management</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                        <div class="bg-brand-600 text-white p-2 rounded-lg">
+                            <i data-lucide="wallet" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <span class="text-lg font-bold text-slate-900 block leading-tight">Financial Tracker</span>
+                            <span class="text-xs text-slate-500 font-medium">Order & Cashbook Manager (GH₵)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center space-x-1">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                    </button>
+                    <button onclick="switchTab('order-form')" id="nav-order-form" class="tab-btn px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i> New Order
+                    </button>
+                    <button onclick="switchTab('cashbook-form')" id="nav-cashbook-form" class="tab-btn px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2">
+                        <i data-lucide="arrow-left-right" class="w-4 h-4"></i> Cashbook Entry
+                    </button>
+                    <button onclick="switchTab('orders-list')" id="nav-orders-list" class="tab-btn px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2">
+                        <i data-lucide="list-ordered" class="w-4 h-4"></i> Order Register
+                    </button>
+                    <button onclick="switchTab('cashbook-list')" id="nav-cashbook-list" class="tab-btn px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2">
+                        <i data-lucide="receipt" class="w-4 h-4"></i> Cashbook Ledger
+                    </button>
+                    <button onclick="switchTab('settings')" id="nav-settings" class="tab-btn px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2">
+                        <i data-lucide="settings" class="w-4 h-4"></i> Settings & Sync
+                    </button>
+                </nav>
+
+                <!-- Mobile Hamburger Button -->
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1">
+            <button onclick="switchTab('dashboard')" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center gap-3">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 text-slate-500"></i> Dashboard
+            </button>
+            <button onclick="switchTab('order-form')" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center gap-3">
+                <i data-lucide="shopping-bag" class="w-5 h-5 text-slate-500"></i> New Order
+            </button>
+            <button onclick="switchTab('cashbook-form')" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center gap-3">
+                <i data-lucide="arrow-left-right" class="w-5 h-5 text-slate-500"></i> Cashbook Entry
+            </button>
+            <button onclick="switchTab('orders-list')" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center gap-3">
+                <i data-lucide="list-ordered" class="w-5 h-5 text-slate-500"></i> Order Register
+            </button>
+            <button onclick="switchTab('cashbook-list')" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center gap-3">
+                <i data-lucide="receipt" class="w-5 h-5 text-slate-500"></i> Cashbook Ledger
+            </button>
+            <button onclick="switchTab('settings')" class="w-full text-left px-3 py-2.5 rounded-md text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center gap-3">
+                <i data-lucide="settings" class="w-5 h-5 text-slate-500"></i> Settings & Sync
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Sync Notification Toast -->
+        <div id="toast" class="hidden fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 text-sm">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-brand-500"></i>
+            <span id="toast-msg">Data synced successfully</span>
+        </div>
+
+        <!-- TAB 1: DASHBOARD -->
+        <section id="tab-dashboard" class="space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900">Financial Dashboard</h1>
+                    <p class="text-sm text-slate-500">Real-time overview of business health, operational KPIs, and targets.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="resetDataToDefault()" class="text-xs text-slate-500 hover:text-red-600 bg-white border border-slate-200 px-3 py-1.5 rounded-lg">
+                        Reset Demo Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Operational KPI Cards Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Cash Balance</span>
+                        <span class="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="banknote" class="w-4 h-4"></i></span>
+                    </div>
+                    <div id="kpi-cash-balance" class="text-xl sm:text-2xl font-bold text-slate-900 mt-2">GH₵0.00</div>
+                    <span class="text-xs text-emerald-600 font-medium flex items-center gap-1 mt-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i> Verified OK</span>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">In Progress</span>
+                        <span class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i data-lucide="clock" class="w-4 h-4"></i></span>
+                    </div>
+                    <div id="kpi-in-progress" class="text-xl sm:text-2xl font-bold text-slate-900 mt-2">0</div>
+                    <span class="text-xs text-slate-500 mt-1 block">Active work items</span>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Overdue</span>
+                        <span class="p-2 bg-red-50 text-red-600 rounded-lg"><i data-lucide="alert-triangle" class="w-4 h-4"></i></span>
+                    </div>
+                    <div id="kpi-overdue" class="text-xl sm:text-2xl font-bold text-red-600 mt-2">0</div>
+                    <span class="text-xs text-red-500 font-medium mt-1 block">Past due date</span>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Due 7 Days</span>
+                        <span class="p-2 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="calendar" class="w-4 h-4"></i></span>
+                    </div>
+                    <div id="kpi-due-7days" class="text-xl sm:text-2xl font-bold text-slate-900 mt-2">0</div>
+                    <span class="text-xs text-amber-600 font-medium mt-1 block">Upcoming deadlines</span>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Customer Owed</span>
+                        <span class="p-2 bg-purple-50 text-purple-600 rounded-lg"><i data-lucide="users" class="w-4 h-4"></i></span>
+                    </div>
+                    <div id="kpi-customer-owed" class="text-xl sm:text-2xl font-bold text-slate-900 mt-2">GH₵0.00</div>
+                    <span class="text-xs text-slate-500 mt-1 block">Unpaid balances</span>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Deposit Shortfall</span>
+                        <span class="p-2 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="shield-alert" class="w-4 h-4"></i></span>
+                    </div>
+                    <div id="kpi-deposit-shortfall" class="text-xl sm:text-2xl font-bold text-amber-600 mt-2">GH₵0.00</div>
+                    <span class="text-xs text-slate-500 mt-1 block">Below 50% target</span>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Ready Collection</span>
+                        <span class="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><i data-lucide="package-check" class="w-4 h-4"></i></span>
+                    </div>
+                    <div id="kpi-ready-collection" class="text-xl sm:text-2xl font-bold text-slate-900 mt-2">0</div>
+                    <span class="text-xs text-emerald-600 font-medium mt-1 block">Awaiting pickup</span>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Net Profit (Est)</span>
+                        <span class="p-2 bg-brand-50 text-brand-600 rounded-lg"><i data-lucide="trending-up" class="w-4 h-4"></i></span>
+                    </div>
+                    <div id="kpi-net-profit" class="text-xl sm:text-2xl font-bold text-brand-600 mt-2">GH₵0.00</div>
+                    <span class="text-xs text-slate-500 mt-1 block">Revenue less expenses</span>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 text-brand-600"></i> Monthly Sales Target vs. Projected
+                    </h3>
+                    <div class="h-64 relative">
+                        <canvas id="chart-sales-target"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-base font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <i data-lucide="pie-chart" class="w-5 h-5 text-brand-600"></i> Order Status Breakdown
+                    </h3>
+                    <div class="h-64 relative">
+                        <canvas id="chart-status-breakdown"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: RECORD NEW ORDER FORM -->
+        <section id="tab-order-form" class="hidden space-y-6">
+            <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="border-b border-slate-100 pb-4 mb-6">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-6 h-6 text-brand-600"></i> Record New Customer Order
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-1">Enter order specifications. Total bill, required deposit, and due date calculate automatically.</p>
+                </div>
+
+                <form id="orderEntryForm" onsubmit="handleOrderSubmit(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Order Date *</label>
+                            <input type="date" id="ord_date" required class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Estimated Completion Due Date</label>
+                            <input type="date" id="ord_due_date" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Customer Name / Contact *</label>
+                            <input type="text" id="ord_customer" required placeholder="e.g. Ama - Kaba & Skirt" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Item / Service Ordered *</label>
+                            <input type="text" id="ord_item" required placeholder="e.g. Custom Tailoring Service" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Main Charge (GH₵) *</label>
+                            <input type="number" step="0.01" inputmode="decimal" id="ord_main_charge" required value="100.00" oninput="calculateOrderCalculations()" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Extras Charged (GH₵)</label>
+                            <input type="number" step="0.01" inputmode="decimal" id="ord_extras_charged" value="0.00" oninput="calculateOrderCalculations()" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Extras Cost (GH₵)</label>
+                            <input type="number" step="0.01" inputmode="decimal" id="ord_extras_cost" value="0.00" placeholder="Material cost" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Auto Calculated Highlights -->
+                    <div class="grid grid-cols-3 gap-3 bg-brand-50 border border-brand-100 p-4 rounded-xl text-center">
+                        <div>
+                            <span class="text-xs text-brand-700 font-medium block">Total Bill</span>
+                            <span id="ord_calc_total" class="text-lg font-bold text-brand-900">GH₵100.00</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-brand-700 font-medium block">Req. Deposit (50%)</span>
+                            <span id="ord_calc_req_deposit" class="text-lg font-bold text-brand-900">GH₵50.00</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-brand-700 font-medium block">Initial Balance</span>
+                            <span id="ord_calc_balance" class="text-lg font-bold text-brand-900">GH₵100.00</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Order Notes / Specifications</label>
+                        <textarea id="ord_notes" rows="2" placeholder="Fabric details, size measurements, special instructions..." class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-2">
+                        <button type="button" onclick="switchTab('orders-list')" class="px-5 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100">Cancel</button>
+                        <button type="submit" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors flex items-center gap-2">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Save Order
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB 3: RECORD CASHBOOK ENTRY FORM -->
+        <section id="tab-cashbook-form" class="hidden space-y-6">
+            <div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="border-b border-slate-100 pb-4 mb-6">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="arrow-left-right" class="w-6 h-6 text-brand-600"></i> Record Cash Movement (Money In/Out)
+                    </h2>
+                    <p class="text-sm text-slate-500 mt-1">Log payments, expenses, customer deposits, or owner withdrawals.</p>
+                </div>
+
+                <form id="cashbookEntryForm" onsubmit="handleCashbookSubmit(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Date *</label>
+                            <input type="date" id="cb_date" required class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Transaction Type *</label>
+                            <select id="cb_type" required onchange="handleCbTypeChange()" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                <option value="Customer payment">Customer Payment (Deposit or Final)</option>
+                                <option value="Operating expense">Operating Expense (Materials, Bills)</option>
+                                <option value="Owner withdrawal">Owner Draw / Personal Withdrawal</option>
+                                <option value="Other income">Other Business Income</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Customer / Description *</label>
+                            <input type="text" id="cb_customer" required placeholder="Select customer order name or expense note" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <p class="text-xs text-slate-400 mt-1">Tip: Use exact customer name to auto-link to Order Register.</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Amount (GH₵) *</label>
+                            <input type="number" step="0.01" inputmode="decimal" id="cb_amount" required placeholder="0.00" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Payment Method</label>
+                            <select id="cb_method" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                <option value="Cash">Cash</option>
+                                <option value="Mobile Money">MTN Mobile Money / MoMo</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Receipt / Ref #</label>
+                            <input type="text" id="cb_ref" placeholder="Optional transaction ID" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Notes</label>
+                        <textarea id="cb_notes" rows="2" placeholder="Additional details..." class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-2">
+                        <button type="button" onclick="switchTab('cashbook-list')" class="px-5 py-2.5 border border-slate-300 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100">Cancel</button>
+                        <button type="submit" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors flex items-center gap-2">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Save Transaction
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- TAB 4: ORDER REGISTER LIST -->
+        <section id="tab-orders-list" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900">Customer Order Register</h1>
+                    <p class="text-sm text-slate-500">Track orders, status updates, deposits received, and balance due.</p>
+                </div>
+                <button onclick="switchTab('order-form')" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> New Order
+                </button>
+            </div>
+
+            <!-- Table Filters & Controls -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <div class="relative w-full sm:w-64">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+                        <input type="text" id="order-search" oninput="filterOrderTable()" placeholder="Search customer or item..." class="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-slate-500 uppercase">Status:</span>
+                    <select id="order-status-filter" onchange="filterOrderTable()" class="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none">
+                        <option value="ALL">All Statuses</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Ready">Ready</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Responsive Card List for Mobile Screens -->
+            <div id="order-cards-mobile" class="block md:hidden space-y-4">
+                <!-- Mobile order cards will render here dynamically -->
+            </div>
+
+            <!-- Orders Data Table for Desktop Screens -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 font-semibold uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-3">Order Date</th>
+                                <th class="p-3">Customer Name</th>
+                                <th class="p-3">Item / Service</th>
+                                <th class="p-3 text-right">Total Bill</th>
+                                <th class="p-3 text-right">Deposits Recv</th>
+                                <th class="p-3 text-right">Balance Due</th>
+                                <th class="p-3">Due Date</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="order-table-body" class="divide-y divide-slate-200">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: CASHBOOK LEDGER LIST -->
+        <section id="tab-cashbook-list" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900">Daily Cashbook Ledger</h1>
+                    <p class="text-sm text-slate-500">Complete transaction history of all cash movements in and out.</p>
+                </div>
+                <button onclick="switchTab('cashbook-form')" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Record Payment/Expense
+                </button>
+            </div>
+
+            <!-- Responsive Card List for Mobile Screens -->
+            <div id="cashbook-cards-mobile" class="block md:hidden space-y-4">
+                <!-- Mobile cashbook cards will render here dynamically -->
+            </div>
+
+            <!-- Cashbook Data Table for Desktop Screens -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hidden md:block">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 font-semibold uppercase tracking-wider border-b border-slate-200">
+                                <th class="p-3">Date</th>
+                                <th class="p-3">Transaction Type</th>
+                                <th class="p-3">Customer / Description</th>
+                                <th class="p-3">Method</th>
+                                <th class="p-3 text-right">Money In</th>
+                                <th class="p-3 text-right">Money Out</th>
+                                <th class="p-3 text-right">Net Movement</th>
+                                <th class="p-3 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cashbook-table-body" class="divide-y divide-slate-200">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: SETTINGS & GOOGLE SHEETS SYNC -->
+        <section id="tab-settings" class="hidden space-y-6">
+            <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+                <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
+                    <i data-lucide="settings" class="w-6 h-6 text-brand-600"></i> Settings & Google Sheets Sync Setup
+                </h2>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Google Apps Script Web App URL</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="setting_script_url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2.5 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <button onclick="saveSettings()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors">
+                                Save URL
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Provide your Google Apps Script URL to automatically sync orders & cashbook entries to Google Sheets.</p>
+                    </div>
+
+                    <div class="border-t border-slate-200 pt-6">
+                        <h3 class="text-sm font-bold text-slate-900 mb-2">Google Apps Script Setup Guide</h3>
+                        <ol class="list-decimal list-inside text-xs text-slate-600 space-y-2 leading-relaxed">
+                            <li>Open your Google Sheet (e.g. <b>Financial tracker 1.xlsx</b>).</li>
+                            <li>Go to <b>Extensions > Apps Script</b> in the Google Sheets top menu.</li>
+                            <li>Paste the `doPost` boilerplate script into `Code.gs`.</li>
+                            <li>Click <b>Deploy > New Deployment</b>, select <i>Web app</i>, set access to <b>Anyone</b>, and click Deploy.</li>
+                            <li>Copy the generated Web App URL and paste it into the field above!</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JavaScript Execution Scripts -->
+    <script>
+        const STORAGE_KEY = 'FINANCIAL_TRACKER_DATA';
+        const SETTINGS_KEY = 'FINANCIAL_TRACKER_SETTINGS';
+
+        const defaultData = {
+            assumptions: {
+                targetOrdersMonth: 20,
+                mainChargePerOrder: 100,
+                depositPercentage: 0.5,
+                usualCompletionDays: 7,
+                monthlyRent: 250
+            },
+            orders: [
+                {
+                    id: 'ORD-101',
+                    orderDate: '2026-03-01',
+                    dueDate: '2026-03-08',
+                    customerName: 'Ama - Kaba & Skirt',
+                    itemOrdered: 'Custom Kaba & Skirt Tailoring',
+                    mainCharge: 100.00,
+                    extrasCharged: 20.00,
+                    totalBill: 120.00,
+                    depositReceived: 60.00,
+                    balanceDue: 60.00,
+                    extrasCost: 10.00,
+                    orderStatus: 'In Progress',
+                    dateDelivered: '',
+                    depositRequired: 60.00,
+                    depositShortfall: 0.00,
+                    notes: 'Customer provided lace material'
+                },
+                {
+                    id: 'ORD-102',
+                    orderDate: '2026-03-03',
+                    dueDate: '2026-03-10',
+                    customerName: 'Kofi - Mens Shirt',
+                    itemOrdered: 'Long Sleeve Linen Shirt',
+                    mainCharge: 150.00,
+                    extrasCharged: 0.00,
+                    totalBill: 150.00,
+                    depositReceived: 100.00,
+                    balanceDue: 50.00,
+                    extrasCost: 0.00,
+                    orderStatus: 'Ready',
+                    dateDelivered: '',
+                    depositRequired: 75.00,
+                    depositShortfall: 0.00,
+                    notes: 'Fitting complete'
+                }
+            ],
+            cashbook: [
+                {
+                    id: 'CB-201',
+                    date: '2026-03-01',
+                    type: 'Customer payment',
+                    customer: 'Ama - Kaba & Skirt',
+                    amount: 60.00,
+                    method: 'Mobile Money',
+                    reference: 'MTN-883921',
+                    notes: 'Deposit receipt',
+                    moneyIn: 60.00,
+                    moneyOut: 0.00,
+                    netMovement: 60.00
+                },
+                {
+                    id: 'CB-202',
+                    date: '2026-03-02',
+                    type: 'Operating expense',
+                    customer: 'Thread & Lining Purchase',
+                    amount: 15.00,
+                    method: 'Cash',
+                    reference: 'REC-002',
+                    notes: 'Workshop supplies',
+                    moneyIn: 0.00,
+                    moneyOut: 15.00,
+                    netMovement: -15.00
+                },
+                {
+                    id: 'CB-203',
+                    date: '2026-03-03',
+                    type: 'Customer payment',
+                    customer: 'Kofi - Mens Shirt',
+                    amount: 100.00,
+                    method: 'Cash',
+                    reference: '',
+                    notes: 'Initial deposit',
+                    moneyIn: 100.00,
+                    moneyOut: 0.00,
+                    netMovement: 100.00
+                }
+            ]
+        };
+
+        let appData = loadData();
+        let chartTarget = null;
+        let chartStatus = null;
+
+        function loadData() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            return stored ? JSON.parse(stored) : defaultData;
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            updateDashboardMetrics();
+        }
+
+        function resetDataToDefault() {
+            if (confirm("Reset all local orders and cashbook entries to default demo records?")) {
+                appData = JSON.parse(JSON.stringify(defaultData));
+                saveData();
+                renderOrderTable();
+                renderCashbookTable();
+                showToast("Demo data restored.");
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+            const target = document.getElementById('tab-' + tabId);
+            if (target) target.classList.remove('hidden');
+
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-100', 'text-slate-900', 'font-semibold');
+                btn.classList.add('text-slate-600');
+            });
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-slate-100', 'text-slate-900', 'font-semibold');
+            }
+
+            if (tabId === 'dashboard') {
+                updateDashboardMetrics();
+            } else if (tabId === 'orders-list') {
+                renderOrderTable();
+            } else if (tabId === 'cashbook-list') {
+                renderCashbookTable();
+            }
+
+            lucide.createIcons();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3500);
+        }
+
+        function calculateOrderCalculations() {
+            const main = parseFloat(document.getElementById('ord_main_charge').value) || 0;
+            const extras = parseFloat(document.getElementById('ord_extras_charged').value) || 0;
+            const total = main + extras;
+            const reqDeposit = total * 0.5;
+
+            document.getElementById('ord_calc_total').innerText = 'GH₵' + total.toFixed(2);
+            document.getElementById('ord_calc_req_deposit').innerText = 'GH₵' + reqDeposit.toFixed(2);
+            document.getElementById('ord_calc_balance').innerText = 'GH₵' + total.toFixed(2);
+        }
+
+        function handleOrderSubmit(e) {
+            e.preventDefault();
+            const mainCharge = parseFloat(document.getElementById('ord_main_charge').value) || 0;
+            const extrasCharged = parseFloat(document.getElementById('ord_extras_charged').value) || 0;
+            const totalBill = mainCharge + extrasCharged;
+            const reqDeposit = totalBill * 0.5;
+
+            const newOrder = {
+                id: 'ORD-' + Math.floor(100 + Math.random() * 900),
+                orderDate: document.getElementById('ord_date').value,
+                dueDate: document.getElementById('ord_due_date').value,
+                customerName: document.getElementById('ord_customer').value,
+                itemOrdered: document.getElementById('ord_item').value,
+                mainCharge: mainCharge,
+                extrasCharged: extrasCharged,
+                totalBill: totalBill,
+                depositReceived: 0,
+                balanceDue: totalBill,
+                extrasCost: parseFloat(document.getElementById('ord_extras_cost').value) || 0,
+                orderStatus: 'In Progress',
+                dateDelivered: '',
+                depositRequired: reqDeposit,
+                depositShortfall: reqDeposit,
+                notes: document.getElementById('ord_notes').value
+            };
+
+            appData.orders.unshift(newOrder);
+            saveData();
+            syncToGoogleSheets('ADD_ORDER', newOrder);
+
+            showToast('Order registered successfully!');
+            switchTab('orders-list');
+        }
+
+        function handleCashbookSubmit(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('cb_amount').value) || 0;
+            const type = document.getElementById('cb_type').value;
+            const customer = document.getElementById('cb_customer').value;
+            const isIncome = (type === 'Customer payment' || type === 'Other income');
+
+            const newTx = {
+                id: 'CB-' + Math.floor(100 + Math.random() * 900),
+                date: document.getElementById('cb_date').value,
+                type: type,
+                customer: customer,
+                amount: amount,
+                method: document.getElementById('cb_method').value,
+                reference: document.getElementById('cb_ref').value,
+                notes: document.getElementById('cb_notes').value,
+                moneyIn: isIncome ? amount : 0,
+                moneyOut: !isIncome ? amount : 0,
+                netMovement: isIncome ? amount : -amount
+            };
+
+            appData.cashbook.unshift(newTx);
+            recalculateOrderPayments();
+            saveData();
+            syncToGoogleSheets('ADD_CASHBOOK', newTx);
+
+            showToast('Cashbook entry recorded!');
+            switchTab('cashbook-list');
+        }
+
+        function recalculateOrderPayments() {
+            appData.orders.forEach(ord => {
+                let paid = 0;
+                appData.cashbook.forEach(cb => {
+                    if (cb.type === 'Customer payment' && cb.customer.trim().toLowerCase() === ord.customerName.trim().toLowerCase()) {
+                        paid += cb.amount;
+                    }
+                });
+                ord.depositReceived = paid;
+                ord.balanceDue = Math.max(0, ord.totalBill - paid);
+                ord.depositShortfall = Math.max(0, ord.depositRequired - paid);
+            });
+        }
+
+        function renderOrderTable() {
+            recalculateOrderPayments();
+            const tbody = document.getElementById('order-table-body');
+            const mobileCards = document.getElementById('order-cards-mobile');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            mobileCards.innerHTML = '';
+
+            appData.orders.forEach((ord, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="p-3 font-medium text-slate-900">${ord.orderDate}</td>
+                    <td class="p-3 font-semibold text-slate-800">${ord.customerName}</td>
+                    <td class="p-3 text-slate-600">${ord.itemOrdered}</td>
+                    <td class="p-3 text-right font-medium">GH₵${ord.totalBill.toFixed(2)}</td>
+                    <td class="p-3 text-right text-emerald-600 font-medium">GH₵${ord.depositReceived.toFixed(2)}</td>
+                    <td class="p-3 text-right font-bold ${ord.balanceDue > 0 ? 'text-amber-600' : 'text-slate-700'}">GH₵${ord.balanceDue.toFixed(2)}</td>
+                    <td class="p-3 text-slate-500">${ord.dueDate || '-'}</td>
+                    <td class="p-3">
+                        <select onchange="updateOrderStatus(${index}, this.value)" class="text-xs font-semibold px-2 py-1 rounded-md border ${getStatusBadgeStyle(ord.orderStatus)}">
+                            <option value="In Progress" ${ord.orderStatus === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="Ready" ${ord.orderStatus === 'Ready' ? 'selected' : ''}>Ready</option>
+                            <option value="Delivered" ${ord.orderStatus === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="Cancelled" ${ord.orderStatus === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </td>
+                    <td class="p-3 text-center">
+                        <button onclick="deleteOrder(${index})" class="text-slate-400 hover:text-red-600 p-1">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs text-slate-400 font-mono">${ord.orderDate}</span>
+                            <h3 class="font-bold text-slate-900 text-sm">${ord.customerName}</h3>
+                            <p class="text-xs text-slate-600">${ord.itemOrdered}</p>
+                        </div>
+                        <select onchange="updateOrderStatus(${index}, this.value)" class="text-xs font-semibold px-2.5 py-1 rounded-md border ${getStatusBadgeStyle(ord.orderStatus)}">
+                            <option value="In Progress" ${ord.orderStatus === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="Ready" ${ord.orderStatus === 'Ready' ? 'selected' : ''}>Ready</option>
+                            <option value="Delivered" ${ord.orderStatus === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="Cancelled" ${ord.orderStatus === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-lg text-center text-xs">
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase">Total</span>
+                            <span class="font-bold text-slate-800">GH₵${ord.totalBill.toFixed(2)}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase">Paid</span>
+                            <span class="font-bold text-emerald-600">GH₵${ord.depositReceived.toFixed(2)}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase">Balance</span>
+                            <span class="font-bold ${ord.balanceDue > 0 ? 'text-amber-600' : 'text-slate-700'}">GH₵${ord.balanceDue.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+                mobileCards.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        function getStatusBadgeStyle(status) {
+            switch(status) {
+                case 'In Progress': return 'bg-blue-50 text-blue-700 border-blue-200';
+                case 'Ready': return 'bg-amber-50 text-amber-700 border-amber-200';
+                case 'Delivered': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                case 'Cancelled': return 'bg-slate-100 text-slate-500 border-slate-200';
+                default: return 'bg-slate-50 text-slate-700 border-slate-200';
+            }
+        }
+
+        function updateOrderStatus(index, status) {
+            appData.orders[index].orderStatus = status;
+            if (status === 'Delivered' && !appData.orders[index].dateDelivered) {
+                appData.orders[index].dateDelivered = new Date().toISOString().split('T')[0];
+            }
+            saveData();
+            renderOrderTable();
+        }
+
+        function deleteOrder(index) {
+            if (confirm("Delete this order entry?")) {
+                appData.orders.splice(index, 1);
+                saveData();
+                renderOrderTable();
+            }
+        }
+
+        function renderCashbookTable() {
+            const tbody = document.getElementById('cashbook-table-body');
+            const mobileCards = document.getElementById('cashbook-cards-mobile');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            mobileCards.innerHTML = '';
+
+            appData.cashbook.forEach((cb, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="p-3 font-medium text-slate-900">${cb.date}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${cb.moneyIn > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${cb.type}</span></td>
+                    <td class="p-3 font-semibold text-slate-800">${cb.customer}</td>
+                    <td class="p-3 text-slate-500">${cb.method}</td>
+                    <td class="p-3 text-right text-emerald-600 font-medium">${cb.moneyIn > 0 ? 'GH₵' + cb.moneyIn.toFixed(2) : '-'}</td>
+                    <td class="p-3 text-right text-red-600 font-medium">${cb.moneyOut > 0 ? 'GH₵' + cb.moneyOut.toFixed(2) : '-'}</td>
+                    <td class="p-3 text-right font-bold ${cb.netMovement >= 0 ? 'text-emerald-700' : 'text-red-600'}">GH₵${cb.netMovement.toFixed(2)}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="deleteCashbook(${index})" class="text-slate-400 hover:text-red-600 p-1">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs text-slate-400 font-mono">${cb.date}</span>
+                            <h4 class="font-bold text-slate-900 text-sm">${cb.customer}</h4>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${cb.moneyIn > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${cb.type}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs pt-1 border-t border-slate-100">
+                        <span class="text-slate-500">Method: ${cb.method}</span>
+                        <span class="font-bold text-sm ${cb.moneyIn > 0 ? 'text-emerald-600' : 'text-red-600'}">
+                            ${cb.moneyIn > 0 ? '+GH₵' + cb.moneyIn.toFixed(2) : '-GH₵' + cb.moneyOut.toFixed(2)}
+                        </span>
+                    </div>
+                `;
+                mobileCards.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        function deleteCashbook(index) {
+            if (confirm("Delete this cashbook transaction?")) {
+                appData.cashbook.splice(index, 1);
+                recalculateOrderPayments();
+                saveData();
+                renderCashbookTable();
+            }
+        }
+
+        function filterOrderTable() {
+            const query = (document.getElementById('order-search').value || '').toLowerCase();
+            const statusFilter = document.getElementById('order-status-filter').value;
+            const rows = document.querySelectorAll('#order-table-body tr');
+
+            rows.forEach((row, idx) => {
+                const ord = appData.orders[idx];
+                if (!ord) return;
+
+                const matchesQuery = ord.customerName.toLowerCase().includes(query) || ord.itemOrdered.toLowerCase().includes(query);
+                const matchesStatus = (statusFilter === 'ALL' || ord.orderStatus === statusFilter);
+
+                if (matchesQuery && matchesStatus) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+
+        function updateDashboardMetrics() {
+            recalculateOrderPayments();
+            let totalCashIn = 0;
+            let totalCashOut = 0;
+
+            appData.cashbook.forEach(cb => {
+                totalCashIn += cb.moneyIn;
+                totalCashOut += cb.moneyOut;
+            });
+
+            const cashBalance = totalCashIn - totalCashOut;
+            let inProgress = 0;
+            let overdue = 0;
+            let due7Days = 0;
+            let readyCollection = 0;
+            let customerOwed = 0;
+            let depositShortfall = 0;
+            const today = new Date();
+
+            appData.orders.forEach(ord => {
+                if (ord.orderStatus === 'In Progress') inProgress++;
+                if (ord.orderStatus === 'Ready') readyCollection++;
+                if (ord.orderStatus !== 'Delivered' && ord.orderStatus !== 'Cancelled') {
+                    customerOwed += ord.balanceDue;
+                    depositShortfall += ord.depositShortfall;
+
+                    if (ord.dueDate) {
+                        const due = new Date(ord.dueDate);
+                        const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+                        if (diffDays < 0) overdue++;
+                        if (diffDays >= 0 && diffDays <= 7) due7Days++;
+                    }
+                }
+            });
+
+            const netProfit = totalCashIn - totalCashOut;
+
+            document.getElementById('kpi-cash-balance').innerText = 'GH₵' + cashBalance.toFixed(2);
+            document.getElementById('kpi-in-progress').innerText = inProgress;
+            document.getElementById('kpi-overdue').innerText = overdue;
+            document.getElementById('kpi-due-7days').innerText = due7Days;
+            document.getElementById('kpi-customer-owed').innerText = 'GH₵' + customerOwed.toFixed(2);
+            document.getElementById('kpi-deposit-shortfall').innerText = 'GH₵' + depositShortfall.toFixed(2);
+            document.getElementById('kpi-ready-collection').innerText = readyCollection;
+            document.getElementById('kpi-net-profit').innerText = 'GH₵' + netProfit.toFixed(2);
+
+            renderCharts();
+        }
+
+        function renderCharts() {
+            const ctxTarget = document.getElementById('chart-sales-target').getContext('2d');
+            if (chartTarget) chartTarget.destroy();
+
+            let currentRevenue = 0;
+            appData.orders.forEach(o => { currentRevenue += o.totalBill; });
+
+            chartTarget = new Chart(ctxTarget, {
+                type: 'bar',
+                data: {
+                    labels: ['Monthly Target', 'Current Orders Revenue'],
+                    datasets: [{
+                        label: 'Revenue (GH₵)',
+                        data: [2000, currentRevenue],
+                        backgroundColor: ['#e2e8f0', '#22c55e'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            const ctxStatus = document.getElementById('chart-status-breakdown').getContext('2d');
+            if (chartStatus) chartStatus.destroy();
+
+            const statusCounts = { 'In Progress': 0, 'Ready': 0, 'Delivered': 0, 'Cancelled': 0 };
+            appData.orders.forEach(o => {
+                if (statusCounts[o.orderStatus] !== undefined) statusCounts[o.orderStatus]++;
+            });
+
+            chartStatus = new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#22c55e', '#94a3b8']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function saveSettings() {
+            const url = document.getElementById('setting_script_url').value;
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify({ scriptUrl: url }));
+            showToast("Sync URL saved successfully!");
+        }
+
+        function syncToGoogleSheets(action, payload) {
+            const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+            if (!settings.scriptUrl) return;
+
+            fetch(settings.scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: action, data: payload })
+            }).then(() => {
+                showToast("Synced to Google Sheet!");
+            }).catch(err => {
+                console.error("Sync error:", err);
+            });
+        }
+
+        function setupFormDefaults() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const dueStr = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+            if (document.getElementById('ord_date')) document.getElementById('ord_date').value = todayStr;
+            if (document.getElementById('ord_due_date')) document.getElementById('ord_due_date').value = dueStr;
+            if (document.getElementById('cb_date')) document.getElementById('cb_date').value = todayStr;
+
+            const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+            if (settings.scriptUrl && document.getElementById('setting_script_url')) {
+                document.getElementById('setting_script_url').value = settings.scriptUrl;
+            }
+
+            calculateOrderCalculations();
+        }
+
+        function handleCbTypeChange() {}
+
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            setupFormDefaults();
+            updateDashboardMetrics();
+        });
+    </script>
+</body>
+</html>
